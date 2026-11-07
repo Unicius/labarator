@@ -1,20 +1,16 @@
-import sys
-from __future__ import annotations
-import datetime
-from constants import LOG_FILE
+"""Модуль логирования ошибок ввода."""
 
-_entries: list[str] = []
+import logging
+
+# Настройка логирования в файл
+logging.basicConfig(
+    filename='input_errors.log',
+    filemode='a',
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    encoding='utf-8',
+    level=logging.WARNING
+)
 
 def log_error(message: str) -> None:
-    """Выводит ошибку в стандартный поток ошибок или файл журнала."""
-    print(f"[ЖУРНАЛ ОШИБОК] {message}", file=sys.stderr)
-
-
-
-
-
-
-
-def clear() -> None:
-    "Очистить журнал (используется в тестах)."
-    _entries.clear()
+    """Логирует сообщение об ошибке ввода."""
+    logging.warning(message)

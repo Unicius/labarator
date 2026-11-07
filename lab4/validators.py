@@ -1,40 +1,29 @@
+"""Модуль валидации ввода пользователя."""
+
 from constants import (
-    DIMENSION_MIN, DIMENSION_MAX,
+    SECTION_DIM_MIN, SECTION_DIM_MAX,
     MOMENT_MIN, MOMENT_MAX,
-    SIGMA_ALLOW_MIN, SIGMA_ALLOW_MAX
+    ALLOWABLE_STRESS_MIN, ALLOWABLE_STRESS_MAX
 )
+from logger import log_error
 
-def validate_float_input(value_str: str, min_val: float, max_val: float) -> float:
-    try:
-        val = float(value_str)
-    except ValueError:
-        raise ValueError("Ошибка: Введенное значение должно быть числом.")
-    
-    if not (min_val <= val <= max_val):
-        raise ValueError(f"Ошибка: Значение вышло за диапазон [{min_val} .. {max_val}].")
-    
-    return val
 
-def get_valid_dimension(prompt: str) -> float:
+def validate_float_input(prompt: str, min_val: float, max_val: float) -> float:
+    """
+    Запрашивает число с плавающей точкой у пользователя и проверяет 
+    нахождение значения в заданном диапазоне [min_val, max_val].
+    """
     while True:
         try:
-            user_input = input(prompt)
-            return validate_float_input(user_input, DIMENSION_MIN, DIMENSION_MAX)
-        except ValueError as e:
-            print(e)
-
-def get_valid_moment(prompt: str) -> float:
-    while True:
-        try:
-            user_input = input(prompt)
-            return validate_float_input(user_input, MOMENT_MIN, MOMENT_MAX)
-        except ValueError as e:
-            print(e)
-
-def get_valid_sigma(prompt: str) -> float:
-    while True:
-        try:
-            user_input = input(prompt)
-            return validate_float_input(user_input, SIGMA_ALLOW_MIN, SIGMA_ALLOW_MAX)
-        except ValueError as e:
-            print(e)
+            val_str = input(prompt).strip()
+            val = float(val_str)
+            if min_val <= val <= max_val:
+                return val
+            else:
+                msg = f"Значение {val} выходит за допустимый диапазон [{min_val}..{max_val}]."
+                print(f"Ошибка: {msg}")
+                log_error(msg)
+        except ValueError:
+            msg = f"Некорректный ввод '{val_str}'. Ожидалось число."
+            print(f"Ошибка: {msg}")
+            log_error(msg)

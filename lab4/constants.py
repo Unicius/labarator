@@ -1,30 +1,27 @@
-import math
+"""Константы: диапазоны, коэффициенты и пороги для расчёта прочности балки."""
 
-# Ограничения на входные данные (мин, макс)
-DIMENSION_MIN = 10.0
-DIMENSION_MAX = 1000.0
+# Диапазоны входных значений
+SECTION_DIM_MIN = 10.0      # мм
+SECTION_DIM_MAX = 1000.0    # мм
 
-MOMENT_MIN = 0.1
-MOMENT_MAX = 500.0
+MOMENT_MIN = 0.1            # кН·м
+MOMENT_MAX = 500.0          # кН·м
 
-SIGMA_ALLOW_MIN = 50.0
-SIGMA_ALLOW_MAX = 400.0
+ALLOWABLE_STRESS_MIN = 50.0   # МПа
+ALLOWABLE_STRESS_MAX = 400.0  # МПа
 
-# Константы для типов сечений
-SECTION_RECTANGULAR = 1
-SECTION_ROUND = 2
-SECTION_I_BEAM = 3
+# Пороги использования материала (sigma / [sigma])
+UTIL_LOW_THRESHOLD = 0.5
+UTIL_HIGH_THRESHOLD = 1.0
 
-SECTION_NAMES = {
-    SECTION_RECTANGULAR: "Прямоугольное",
-    SECTION_ROUND: "Круглое",
-    SECTION_I_BEAM: "Двутавр"
-}
-
-# Пороги использования балки
-USAGE_SAFE_LIMIT = 0.5
-USAGE_ALLOWABLE_LIMIT = 1.0
-
-CLASS_SAFE = "большой запас"
-CLASS_ALLOWABLE = "допустимо"
+# Названия классов использования
+CLASS_HIGH_MARGIN = "большой запас"
+CLASS_ACCEPTABLE = "допустимо"
 CLASS_OVERLOAD = "перегрузка"
+
+# Имена типов сечений
+SECTION_TYPES = {
+    "1": "Прямоугольное",
+    "2": "Круглое",
+    "3": "Двутавр"
+}

@@ -1,3 +1,4 @@
+"""Сохранение и чтение числовых рядов в формате JSON."""
 from __future__ import annotations
 import json
 from datetime import datetime
@@ -6,14 +7,20 @@ from typing import Any, Dict, List, Optional, Union
 
 PathLike = Union[str, Path]
 
-def save_series_json(data: List[float], path: PathLike, meta: Optional[Dict[str, Any]] = None, indent: int = 2) -> None:
+def save_series_json(
+    data: List[float],
+    path: PathLike,
+    meta: Optional[Dict[str, Any]] = None,
+    indent: int = 2,
+) -> None:
     """Сохраняет числовой ряд в JSON-файл."""
     if not data:
         raise ValueError("Ряд пуст: нечего сохранять")
+
     for i, v in enumerate(data):
         if not isinstance(v, (int, float)) or isinstance(v, bool):
             raise ValueError(f"Элемент data[{i}] = {v!r} не является числом")
-            
+
     payload: Dict[str, Any] = {
         "meta": {
             "n": len(data),
@@ -22,6 +29,7 @@ def save_series_json(data: List[float], path: PathLike, meta: Optional[Dict[str,
         },
         "data": list(data),
     }
+
     file_path = Path(path)
     try:
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -31,15 +39,18 @@ def save_series_json(data: List[float], path: PathLike, meta: Optional[Dict[str,
         raise ValueError(f"Не удалось записать файл {file_path}: {err}") from err
 
 def load_series_json(path: PathLike, with_meta: bool = False):
-    """Читает числовой ряд из JSON-фаила."""
+    """Читает числовой ряд из JSON-файла."""
     file_path = Path(path)
     if not file_path.exists():
         raise ValueError(f"Файл не найден: {file_path}")
+
     try:
         with file_path.open("r", encoding="utf-8") as f:
             payload = json.load(f)
     except json.JSONDecodeError as err:
-        raise ValueError(f"Файл {file_path} не является корректным JSON: {err.msg} (строка {err.lineno})") from err
+        raise ValueError(
+            f"Файл {file_path} не является корректным JSON: {err.msg} (строка {err.lineno})"
+        ) from err
     except OSError as err:
         raise ValueError(f"Не удалось прочитать файл {file_path}: {err}") from err
 
@@ -51,16 +62,20 @@ def load_series_json(path: PathLike, with_meta: bool = False):
         data = payload["data"]
         meta = payload.get("meta", {}) or {}
     else:
-        raise ValueError(f"Некорректная структура JSON в {file_path}: ожидался список или объект с 'data'")
+        raise ValueError(
+            f"Некорректная структура JSON в {file_path}: ожидался список или объект с 'data'"
+        )
 
     if not isinstance(data, list):
-        raise ValueError(f"Поле 'data' в {file_path} должно быть списком, а не {type(data).__name__}")
+        raise ValueError(
+            f"Поле 'data' в {file_path} должно быть списком, а не {type(data).__name__}"
+        )
     if not data:
         raise ValueError(f"Ряд в файле {file_path} пуст")
-        
+
     for i, v in enumerate(data):
         if not isinstance(v, (int, float)) or isinstance(v, bool):
             raise ValueError(f"Элемент data[{i}] = {v!r} в {file_path} не является числом")
-            
+
     result = [float(v) for v in data]
     return (result, meta) if with_meta else result

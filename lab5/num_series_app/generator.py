@@ -1,9 +1,14 @@
+"""Модуль генерации числовых рядов (включая ряд с выбросами для Варианта 8)."""
+from __future__ import annotations
+
 import math
 import random
 from typing import List, Optional
 
 def _validate_n(n: int) -> None:
     """Проверка, что n — положительное целое число."""
+    if isinstance(n, bool):
+        raise ValueError(f"n должно быть положительным целым числом (получено: {n!r})")
     try:
         is_positive_int = (n > 0) and (int(n) == n)
     except (TypeError, ValueError) as err:
@@ -11,30 +16,31 @@ def _validate_n(n: int) -> None:
             f"n должно быть положительным целым числом "
             f"(получено: {n!r}; причина: {err.args[0]})"
         ) from err
+
     if not is_positive_int:
         raise ValueError(
             f"n должно быть положительным целым числом (получено: {n!r})"
         )
 
-# Создадим три генератора рандомных чисел
-
-def random_series(n: int,
-                  low: float = -100,
-                  high: float = 100,
-                  seed: Optional[int] = None) -> List[float]:
-    """Ряд из n равномерно распределенных случайных чисел на (low/high)"""
+def random_series(
+    n: int,
+    low: float = -100.0,
+    high: float = 100.0,
+    seed: Optional[int] = None) -> List[float]:
+    """Ряд из n равномерно распределённых случайных чисел на [low, high]."""
     _validate_n(n)
     if low >= high:
         raise ValueError(f"low должно быть меньше high (получено: {low} >= {high})")
     rng = random.Random(seed)
-    return [rng.uniform(low, high) for _ in range (n)]
+    return [rng.uniform(low, high) for _ in range(n)]
 
-def sine_series(n: int, 
-                amplitude: float = 1.0, 
-                frequency: float = 1.0, 
-                noise: float = 0.0, 
-                seed: Optional[int] = None) -> List[float]:
-    """Синусоидальный ряд с аддитивным шумом."""
+def sine_series(
+    n: int,
+    amplitude: float = 1.0,
+    frequency: float = 1.0,
+    noise: float = 0.0,
+    seed: Optional[int] = None) -> List[float]:
+    """Синусоидальный ряд с аддитивным шумом (для наглядной проверки MA)."""
     _validate_n(n)
     rng = random.Random(seed)
     return [
@@ -43,15 +49,46 @@ def sine_series(n: int,
         for i in range(n)
     ]
 
-def trend_series(n: int,
-                start: float = 0.0,
-                step: float = 1.0,
-                noise: float = 0.0,
-                seed: Optional[int] = None) -> List[float]:
-    """Линейный тренд полезно чтобы увидеть что MA смещается"""
+def trend_series(
+    n: int,
+    start: float = 0.0,
+    step: float = 1.0,
+    noise: float = 0.0,
+    seed: Optional[int] = None,
+) -> List[float]:
+    """Линейный тренд (полезно, чтобы увидеть, что MA смещается)."""
     _validate_n(n)
     rng = random.Random(seed)
     return [
         start + step * i + (rng.uniform(-noise, noise) if noise else 0.0)
         for i in range(n)
     ]
+
+def outliers_series(
+    n: int = 1500,
+    low: float = 0.0,
+    high: float = 10.0,
+    outlier_factor: float = 10.0,
+    num_outliers: int = 2,
+    seed: Optional[int] = None,
+) -> List[float]:
+    """Вариант 8: шум + два «выброса» (значения, в 10 раз больше типичных)."""
+    _validate_n(n)
+    if low >= high:
+        raise ValueError(f"low должно быть меньше high (получено: {low} >= {high})")
+    if outlier_factor <= 0:
+        raise ValueError(f"outlier_factor должен быть > 0 (получено: {outlier_factor})")
+    if num_outliers < 0:
+        raise ValueError(f"num_outliers должен быть >= 0 (получено: {num_outliers})")
+
+    rng = random.Random(seed)
+    data = [rng.uniform(low, high) for _ in range(n)]
+
+    count = min(num_outliers, n)
+    if count > 0:
+        typical_scale = max(abs(low), abs(high))
+        outlier_val = typical_scale * outlier_factor
+        for idx in rng.sample(range(n), count):
+            data[idx] = outlier_val
+
+    return data

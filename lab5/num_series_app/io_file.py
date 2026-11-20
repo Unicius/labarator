@@ -1,4 +1,6 @@
+"""Чтение числовых рядов из текстовых файлов (.txt, .csv)."""
 from __future__ import annotations
+
 import re
 from pathlib import Path
 from typing import List, Union
@@ -11,6 +13,7 @@ def load_series_txt(path: PathLike) -> List[float]:
     file_path = Path(path)
     if not file_path.exists():
         raise ValueError(f"Файл не найден: {file_path}")
+
     result: List[float] = []
     try:
         with file_path.open("r", encoding="utf-8") as f:
@@ -21,9 +24,12 @@ def load_series_txt(path: PathLike) -> List[float]:
                 try:
                     result.append(float(line))
                 except ValueError as err:
-                    raise ValueError(f"{file_path}:{lineno}: '{line}' не является числом") from err
+                    raise ValueError(
+                        f"{file_path}:{lineno}: '{line}' не является числом"
+                    ) from err
     except OSError as err:
         raise ValueError(f"Не удалось прочитать файл {file_path}: {err}") from err
+
     if not result:
         raise ValueError(f"Файл {file_path} не содержит чисел")
     return result
@@ -33,6 +39,7 @@ def load_series_csv(path: PathLike) -> List[float]:
     file_path = Path(path)
     if not file_path.exists():
         raise ValueError(f"Файл не найден: {file_path}")
+
     result: List[float] = []
     try:
         with file_path.open("r", encoding="utf-8") as f:
@@ -45,20 +52,24 @@ def load_series_csv(path: PathLike) -> List[float]:
                     continue
                 try:
                     values = [float(t) for t in tokens]
-                except ValueError:
+                except ValueError as err:
                     if lineno == 1:
                         continue
-                    raise ValueError(f"{file_path}:{lineno}: строка '{line}' содержит нечисловые значения")
+                    raise ValueError(
+                        f"{file_path}:{lineno}: строка '{line}' содержит нечисловые значения"
+                    ) from err
                 result.extend(values)
     except OSError as err:
         raise ValueError(f"Не удалось прочитать файл {file_path}: {err}") from err
+
     if not result:
         raise ValueError(f"Файл {file_path} не содержит чисел")
     return result
 
 def load_series_auto(path: PathLike) -> List[float]:
-    """Автоматически выбирает парсер по расширению файла."""
+    """Автоматически выбирает парсер по расширению."""
     from .io_json import load_series_json
+
     suffix = Path(path).suffix.lower()
     if suffix == ".json":
         return load_series_json(path)

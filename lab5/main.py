@@ -90,8 +90,8 @@ def build_parser() -> argparse.ArgumentParser:
         default="outliers",
         help="тип генерируемого ряда",
     )
-    parser.add_argument("--n", type=int, default=1500, help="количество точек в ряде")
-    parser.add_argument("--seed", type=int, default=42, help="зерно ГПСЧ для воспроизводимости")
+    parser.add_argument("--n", type=int, default=8000, help="количество точек в ряде")
+    parser.add_argument("--seed", type=int, default=438, help="зерно ГПСЧ для воспроизводимости")
     parser.add_argument(
         "--load",
         metavar="PATH",
@@ -179,3 +179,4 @@ def main(argv: Optional[List[str]] = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
